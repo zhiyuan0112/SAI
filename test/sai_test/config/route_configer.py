@@ -27,20 +27,28 @@ def t0_route_config_helper(test_obj, is_create_default_route=True, is_create_rou
     route_configer = RouteConfiger(test_obj)
     if is_create_default_route:
         route_configer.create_default_route()
-        test_obj.port1_rif = route_configer.create_router_interface_for_port(port_id=test_obj.port_list[1])
+        test_obj.port1_rif = route_configer.create_router_interface_for_port(port_id=test_obj.dut.port_list[1])
 
     if is_create_route_for_lag:
         # config neighbor and route for lag1
-        test_obj.lag1_rif = route_configer.create_router_interface_for_port(port_id=test_obj.lag1.lag_id)
-        test_obj.lag1_nbr = route_configer.create_neighbor_for_rif(rif_id=test_obj.lag1_rif, ip_addr=test_obj.lag1_nhop_ip, mac_addr=test_obj.lag1_nb_mac)
-        test_obj.lag1_nhop = route_configer.create_next_hop_for_rif(ip_addr=test_obj.lag1_nhop_ip, rif=test_obj.lag1_rif)
-        test_obj.lag1_route = route_configer.create_route_entry(dst_ip=test_obj.lag1_route_dst+'/24', next_hop=test_obj.lag1_nhop)
+        test_obj.dut.lag1_rif = route_configer.create_router_interface_for_port(
+            port_id=test_obj.dut.lag1.lag_id)
+        test_obj.dut.lag1_nbr = route_configer.create_neighbor_for_rif(
+            rif_id=test_obj.dut.lag1_rif, ip_addr=test_obj.lag1_neighbor.ipv4, mac_addr=test_obj.lag1_neighbor.mac)
+        test_obj.dut.lag1_nhop = route_configer.create_next_hop_for_rif(
+            ip_addr=test_obj.lag1_neighbor.ipv4, rif=test_obj.dut.lag1_rif)
+        test_obj.dut.lag1_route = route_configer.create_route_entry(
+            dst_ip=test_obj.servers[11][0].ipv4+'/24', next_hop=test_obj.dut.lag1_nhop)
 
         # config neighbor and route for lag2
-        test_obj.lag2_rif = route_configer.create_router_interface_for_port(port_id=test_obj.lag2.lag_id)
-        test_obj.lag2_nbr = route_configer.create_neighbor_for_rif(rif_id=test_obj.lag2_rif, ip_addr=test_obj.lag2_nhop_ip, mac_addr=test_obj.lag2_nb_mac)
-        test_obj.lag2_nhop = route_configer.create_next_hop_for_rif(ip_addr=test_obj.lag2_nhop_ip, rif=test_obj.lag2_rif)
-        test_obj.lag2_route = route_configer.create_route_entry(dst_ip=test_obj.lag2_route_dst+'/24', next_hop=test_obj.lag2_nhop)   
+        test_obj.dut.lag2_rif = route_configer.create_router_interface_for_port(
+            port_id=test_obj.dut.lag2.lag_id)
+        test_obj.dut.lag2_nbr = route_configer.create_neighbor_for_rif(
+            rif_id=test_obj.dut.lag2_rif, ip_addr=test_obj.lag2_neighbor.ipv4, mac_addr=test_obj.lag2_neighbor.mac)
+        test_obj.dut.lag2_nhop = route_configer.create_next_hop_for_rif(
+            ip_addr=test_obj.lag2_neighbor.ipv4, rif=test_obj.dut.lag2_rif)
+        test_obj.dut.lag2_route = route_configer.create_route_entry(
+            dst_ip=test_obj.servers[12][0].ipv4+'/24', next_hop=test_obj.dut.lag2_nhop) 
 
 class RouteConfiger(object):
     """
@@ -69,10 +77,10 @@ class RouteConfiger(object):
         print("Create loop back interface...")
         attr = sai_thrift_get_switch_attribute(self.client, default_virtual_router_id=True)
         self.test_obj.assertNotEqual(attr['default_virtual_router_id'], 0)
-        self.test_obj.default_vrf = attr['default_virtual_router_id']
+        self.test_obj.dut.default_vrf = attr['default_virtual_router_id']
 
-        self.test_obj.loopback_intf = sai_thrift_create_router_interface(self.client, 
-            type=SAI_ROUTER_INTERFACE_TYPE_LOOPBACK, virtual_router_id=self.test_obj.default_vrf)
+        self.dut.test_obj.loopback_intf = sai_thrift_create_router_interface(self.client, 
+            type=SAI_ROUTER_INTERFACE_TYPE_LOOPBACK, virtual_router_id=self.test_obj.dut.default_vrf)
         self.test_obj.assertEqual(self.test_obj.status(), SAI_STATUS_SUCCESS)
 
     def create_default_v4_v6_route_entry(self):
@@ -84,17 +92,17 @@ class RouteConfiger(object):
         v6_default = sai_thrift_ip_prefix_t(addr_family=1,
             addr=sai_thrift_ip_addr_t(ip6=DEFAULT_IP_V6_PREFIX),
             mask=sai_thrift_ip_addr_t(ip6=DEFAULT_IP_V6_PREFIX))
-        entry = sai_thrift_route_entry_t(vr_id=self.test_obj.default_vrf,
+        entry = sai_thrift_route_entry_t(vr_id=self.test_obj.dut.default_vrf,
             destination=v6_default)
-        self.test_obj.default_ipv6_route_entry = sai_thrift_create_route_entry(
+        self.test_obj.dut.default_ipv6_route_entry = sai_thrift_create_route_entry(
             self.client,
             route_entry=entry,
             packet_action=SAI_PACKET_ACTION_DROP)
         self.test_obj.assertEqual(self.test_obj.status(), SAI_STATUS_SUCCESS)
 
-        entry = sai_thrift_route_entry_t(vr_id=self.test_obj.default_vrf,
+        entry = sai_thrift_route_entry_t(vr_id=self.test_obj.dut.default_vrf,
             destination=sai_ipprefix(DEFAULT_IP_V4_PREFIX))
-        self.test_obj.default_ipv4_route_entry = sai_thrift_create_route_entry(
+        self.test_obj.dut.default_ipv4_route_entry = sai_thrift_create_route_entry(
             self.client,
             route_entry=entry,
             packet_action=SAI_PACKET_ACTION_DROP)
@@ -106,17 +114,17 @@ class RouteConfiger(object):
         """
 
         print("Create local v6 route...")
-        entry = sai_thrift_route_entry_t(vr_id=self.test_obj.default_vrf,
+        entry = sai_thrift_route_entry_t(vr_id=self.test_obj.dut.default_vrf,
             destination=sai_ipprefix(LOCAL_IP_10V6_PREFIX))
-        self.test_obj.local_10v6_route_entry = sai_thrift_create_route_entry(
+        self.test_obj.dut.local_10v6_route_entry = sai_thrift_create_route_entry(
             self.client,
             route_entry=entry,
             packet_action=SAI_PACKET_ACTION_FORWARD)
         self.test_obj.assertEqual(self.test_obj.status(), SAI_STATUS_SUCCESS)
 
-        entry = sai_thrift_route_entry_t(vr_id=self.test_obj.default_vrf,
+        entry = sai_thrift_route_entry_t(vr_id=self.test_obj.dut.default_vrf,
             destination=sai_ipprefix(LOCAL_IP_128V6_PREFIX))
-        self.test_obj.local_128v6_route_entry = sai_thrift_create_route_entry(
+        self.test_obj.dut.local_128v6_route_entry = sai_thrift_create_route_entry(
             self.client,
             route_entry=entry,
             packet_action=SAI_PACKET_ACTION_FORWARD)
@@ -124,7 +132,7 @@ class RouteConfiger(object):
 
     def create_route_and_neighbor_entry_for_port(self, ip_addr, mac_addr, port_id, virtual_router_id=None):
         if virtual_router_id is None:
-            virtual_router_id = self.test_obj.default_vrf
+            virtual_router_id = self.test_obj.dut.default_vrf
         
         rif_id1 = sai_thrift_create_router_interface(self.client, virtual_router_id=virtual_router_id, type=SAI_ROUTER_INTERFACE_TYPE_PORT, port_id=port_id)
         
@@ -137,7 +145,7 @@ class RouteConfiger(object):
     
     def create_router_interface_for_port(self, port_id, virtual_router_id=None):
         if virtual_router_id is None:
-            virtual_router_id = self.test_obj.default_vrf
+            virtual_router_id = self.test_obj.dut.default_vrf
 
         rif_id1 = sai_thrift_create_router_interface(self.client, virtual_router_id=virtual_router_id, type=SAI_ROUTER_INTERFACE_TYPE_PORT, port_id=port_id)
         self.test_obj.assertEqual(self.test_obj.status(), SAI_STATUS_SUCCESS)
