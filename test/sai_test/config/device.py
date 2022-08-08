@@ -18,43 +18,54 @@
 #
 #
 
-class Dut():
+from enum import Enum
+from constant import *
+
+class DeviceType(Enum):
+    server = 'server'
+    t0 = 't0'
+    t1 = 't1'
+
+class Device():
     """
-    dut config
-    """
-
-    def __init__(self):
-
-        # router
-        self.default_vrf = None
-        self.default_ipv6_route_entry = None
-        self.default_ipv4_route_entry = None
-        self.loopback_intf = None
-        self.local_10v6_route_entry = None
-        self.local_128v6_route_entry = None
-
-        # vlan
-        self.default_vlan_id = None
-        self.vlans = {}
-
-        # switch
-        self.switch_id = None
-
-        # fdb
-        self.default_vlan_fdb_list = None
-        self.vlan_10_fdb_list = None
-        self.vlan_20_fdb_list = None
-
-        # port
-        self.bridge_port_list = None
-        self.default_1q_bridge_id = None
-        self.default_trap_group = None
-        self.host_intf_table_id = None
-        self.portConfigs = None
-        self.port_list = None
-        self.port_to_hostif_map = None
-
-        # lag
-        self.lag1 = None
-        self.lag2 = None
+        Create servers(0-17) ip list.
         
+        server0: IP 192.168.0.1~150
+        server1: IP 192.168.1.1~150
+        server2: IP 192.168.2.1~150
+        .....
+
+        Add those following attribute to this class:
+        self.local_server_ip_list for all the local server mac
+    """
+    def __init__(self,device_type,id,group_id=None,ip_num=150):
+        self.type = device_type
+        self.id = id
+        self.group_id = group_id
+        self.ip_num = ip_num
+        if self.type == DeviceType.server:
+            self.ip_prefix = SERVER_IPV4_PREFIX
+            self.fdb_device_num = FDB_SERVER_NUM
+        elif self.type == DeviceType.t1:
+            self.ip_prefix = T1_IPV4_PREFIX
+            self.fdb_device_num = FDB_T1_NUM
+        elif self.type == DeviceType.t0:
+            self.ip_prefix = T0_IPV4_PREFIX
+            self.fdb_device_num = FDB_T0_NUM
+
+        self.mac = self._generate_mac_address()
+        self.ipv4 = self._generate_ipv4_address()
+
+    def _generate_ipv4_address(self):
+        """
+        Generate ip address.
+        """
+        return self.ip_prefix.format(self.group_id,self.id)
+
+    
+    def _generate_mac_address(self):
+        """
+        Generate mac address.
+        """
+        return FDB_MAC_PREFIX + ':' + self.fdb_device_num + ':' + \
+            '{:02d}'.format(self.group_id) + ':' + '{:02d}'.format(self.id)
