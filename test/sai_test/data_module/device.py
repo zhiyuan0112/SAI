@@ -23,7 +23,7 @@ from constant import *
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from data_module.nexthop import Nexthop
-    from data_module.ecmp import Ecmp
+    from data_module.nexthop_group import NexthopGroup
 
 
 class DeviceType(Enum):
@@ -162,7 +162,7 @@ class Device(object):
         """
         L3 destination port object, defined in route configer
         """
-        self.ecmp_egress: Ecmp = None
+        self.ecmp_egress: NexthopGroup = None
         """
         Ecmp object.
         """

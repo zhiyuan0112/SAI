@@ -58,6 +58,7 @@ from data_module.vlan import Vlan
 from data_module.lag import Lag
 from data_module.device import Device
 from data_module.device import DeviceType
+from data_module.nexthop_group import NexthopGroup
 from typing import List
 from typing import Dict
 
@@ -317,12 +318,12 @@ class T0TestBase(ThriftInterfaceDataPlane):
         """
         Represent the DUT in test.
         """
-        self.server_groups = [0, 1, 2, 11, 12]
+        self.server_groups = [0, 1, 2, 11, 12, 13, 60]
         """
         Group numbers for server
         """
 
-        self.t1_groups = [1, 2]
+        self.t1_groups = [1, 2, 3]
         """
         Group numbers for server
         """
@@ -343,6 +344,10 @@ class T0TestBase(ThriftInterfaceDataPlane):
         Simulating the T1 objects in test
         Key: group id
         Value: List, servers
+        """
+        self.nhop_group: NexthopGroup()
+        """
+        ECMP
         """
 
     def setUp(self,

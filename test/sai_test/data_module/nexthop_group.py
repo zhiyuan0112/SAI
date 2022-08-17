@@ -24,33 +24,35 @@ if TYPE_CHECKING:
     from data_module.nexthop import Nexthop
 
 
-class Ecmp(object):
+class NexthopGroup(object):
     """
-    Represent the ecmp(next hop group) object.
+    Represent the next hop group object.
     Attrs:
-        ecmp_id: ecmp id(nexthop group id)
-        ecmp_members: ecmp members(next hops)
-        member_port_indexs: ecmp port member indexes
+        nexthop_group_id: nexthop group id
+        nexthop_group_members: next hops
+        member_port_indexs: nexthop group port member indexes
     """
 
-    def __init__(self, ecmp_id=None, ecmp_members: List['Nexthop'] = [], member_port_indexs: List = []):
+    def __init__(self, nexthop_group_id=None, nexthop_group_members: List['Nexthop'] = [], member_port_indexs: List = []):
         """
-        Init ecmp Object
+        Init nexthop group Object
         Init following attrs:
-            ecmp_id
-            ecmp_members
+            nexthop_group_id
+            nexthop_group_members
             member_port_indexs
             lags
+            nexthopv4_list
+            nexthopv6_list
         """
-        self.ecmp_id = None
+        self.nexthop_group_id = None
         """
-        ecmp id (nexthop group id)
+        nexthop group id
         """
-        self.ecmp_members: List[Nexthop] = ecmp_members
+        self.nexthop_group_members: List[Nexthop] = nexthop_group_members
         """
-        ecmp members(next hop ids)
+        next hop ids
         """
         self.member_port_indexs: List = member_port_indexs
         """
-        ecmp port member indexes
+        nexthop group port member indexes
         """

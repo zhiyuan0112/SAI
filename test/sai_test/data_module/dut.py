@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from data_module.vlan import Vlan
     from data_module.lag import Lag
-    from data_module.ecmp import Ecmp
+    from data_module.nexthop_group import NexthopGroup
 
 
 class Dut(object):
@@ -67,6 +67,7 @@ class Dut(object):
             # lag
             lag1 
             lag2
+            lag3
 
             #L3
             nexthopv4_list: next hop id list
@@ -147,9 +148,14 @@ class Dut(object):
         # lag
         self.lag1: Lag = None
         self.lag2: Lag = None
+        self.lag3: Lag = None
+
+        # self.lag1_nhop = None
+        # self.lag2_nhop = None
+        # self.lag3_nhop = None
 
         # ecmp
-        self.ecmp_list: List[Ecmp] = []
+        self.ecmp_list: List[NexthopGroup] = []
         """
         Ecmp list, contains ecmp objects
         """
