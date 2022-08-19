@@ -3,7 +3,7 @@ from sai_utils import *
 
 class EcmpLagTest(T0TestBase):
     """
-    Test load balance of l3 by source IP.
+    Verify loadbalance on ECMP members.
     """
 
     def setUp(self):

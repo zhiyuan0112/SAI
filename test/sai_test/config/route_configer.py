@@ -83,28 +83,7 @@ def t0_route_config_helper(test_obj: 'T0TestBase', is_create_default_route=True,
             nexthop_device=test_obj.t1_list[3][100],
             lag=test_obj.dut.lag3)
 
-        # create ecmp nexthop group
-        test_obj.nhop_group1 = sai_thrift_create_next_hop_group(
-            test_obj.client, type=SAI_NEXT_HOP_GROUP_TYPE_ECMP)
-        test_obj.assertEqual(test_obj.status(), SAI_STATUS_SUCCESS)
-        test_obj.nh_group_member1 = sai_thrift_create_next_hop_group_member(
-            test_obj.client,
-            next_hop_group_id=test_obj.nhop_group1,
-            next_hop_id=test_obj.dut.lag2.nexthopv4.nexthop_id)
-        test_obj.assertEqual(test_obj.status(), SAI_STATUS_SUCCESS)
-        test_obj.nh_group_member2 = sai_thrift_create_next_hop_group_member(
-            test_obj.client,
-            next_hop_group_id=test_obj.nhop_group1,
-            next_hop_id=test_obj.dut.lag3.nexthopv4.nexthop_id)
-        test_obj.assertEqual(test_obj.status(), SAI_STATUS_SUCCESS)
-        # create route entries
-        test_obj.ecmp_route0 = sai_thrift_route_entry_t(
-            switch_id=test_obj.dut.switch_id,
-            destination=sai_ipprefix('192.168.60.0/24'),
-            vr_id=test_obj.dut.default_vrf)
-        status = sai_thrift_create_route_entry(
-            test_obj.client, test_obj.ecmp_route0, next_hop_id=test_obj.nhop_group1)
-        test_obj.assertEqual(status, SAI_STATUS_SUCCESS)
+        route_configer.create_nexthop_group_by_nexthops()
 
 class RouteConfiger(object):
     """
@@ -731,6 +710,31 @@ class RouteConfiger(object):
         self.test_obj.dut.bridge_port_nhop_v4_list.append(v4)
         self.test_obj.dut.bridge_port_nhop_v6_list.append(v6)
         return v4, v6
+
+    def create_nexthop_group_by_nexthops(self):
+        """
+        Create nexthop group by nexthops.
+        """
+        self.test_obj.nhop_group1 = sai_thrift_create_next_hop_group(
+            self.test_obj.client, type=SAI_NEXT_HOP_GROUP_TYPE_ECMP)
+
+        self.test_obj.nh_group_member1 = sai_thrift_create_next_hop_group_member(
+            self.test_obj.client,
+            next_hop_group_id=self.test_obj.nhop_group1,
+            next_hop_id=self.test_obj.dut.lag2.nexthopv4.nexthop_id)
+
+        self.test_obj.nh_group_member1 = sai_thrift_create_next_hop_group_member(
+            self.test_obj.client,
+            next_hop_group_id=self.test_obj.nhop_group1,
+            next_hop_id=self.test_obj.dut.lag3.nexthopv4.nexthop_id)
+
+        self.test_obj.ecmp_route0 = sai_thrift_route_entry_t(
+            switch_id=self.test_obj.dut.switch_id,
+            destination=sai_ipprefix('192.168.60.0/24'),
+            vr_id=self.test_obj.dut.default_vrf)
+        status = sai_thrift_create_route_entry(
+            self.test_obj.client, self.test_obj.ecmp_route0, next_hop_id=self.test_obj.nhop_group1)
+        self.test_obj.assertEqual(status, SAI_STATUS_SUCCESS)
 
     def create_nexthop_by_rif(self, rif, nexthop_device: Device):
         """
