@@ -346,6 +346,7 @@ class T0TestBase(ThriftInterfaceDataPlane):
               is_create_lag=True,
               is_create_route_for_lag=True,
               is_create_route_for_nhopgrp=False,
+              is_reuse_lag_for_nhopgrp=True,
               wait_sec=5):
         super(T0TestBase, self).setUp()
 
@@ -382,7 +383,8 @@ class T0TestBase(ThriftInterfaceDataPlane):
                 is_create_default_route=is_create_default_route,
                 is_create_default_loopback_interface=is_create_default_loopback_interface,
                 is_create_route_for_lag=is_create_route_for_lag,
-                is_create_route_for_nhopgrp=is_create_route_for_nhopgrp)
+                is_create_route_for_nhopgrp=is_create_route_for_nhopgrp,
+                is_reuse_lag_for_nhopgrp=is_reuse_lag_for_nhopgrp)
             print("common config done. Persist it")
             self.persist_helper.persist_dut(self.dut)
             self.persist_helper.persist_server_list(self.servers)

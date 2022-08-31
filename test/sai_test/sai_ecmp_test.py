@@ -11,7 +11,10 @@ class LoadbalanceOnSrcPortTestV4(T0TestBase):
         """
         Test the basic setup process
         """
-        T0TestBase.setUp(self, is_create_route_for_nhopgrp=True)
+        T0TestBase.setUp(self,
+                         is_create_route_for_nhopgrp=True,
+                         is_reuse_lag_for_nhopgrp=False,
+                        )
         
     def test_load_balance_on_sportv4(self):
         """
@@ -96,7 +99,10 @@ class LoadbalanceOnSrcPortTestV6(T0TestBase):
         """
         Test the basic setup process
         """
-        T0TestBase.setUp(self, is_create_route_for_nhopgrp=True)
+        T0TestBase.setUp(self,
+                         is_create_route_for_nhopgrp=True,
+                         is_reuse_lag_for_nhopgrp=False,
+                        )
         
     def test_load_balance_on_sportv6(self):
         """
@@ -176,7 +182,10 @@ class LoadbalanceOnDstPortTestV4(T0TestBase):
         """
         Test the basic setup process
         """
-        T0TestBase.setUp(self, is_create_route_for_nhopgrp=True)
+        T0TestBase.setUp(self,
+                         is_create_route_for_nhopgrp=True,
+                         is_reuse_lag_for_nhopgrp=False,
+                        )
         
     def test_load_balance_on_dportv4(self):
         """
@@ -261,7 +270,10 @@ class LoadbalanceOnDstPortTestV6(T0TestBase):
         """
         Test the basic setup process
         """
-        T0TestBase.setUp(self, is_create_route_for_nhopgrp=True)
+        T0TestBase.setUp(self,
+                         is_create_route_for_nhopgrp=True,
+                         is_reuse_lag_for_nhopgrp=False,
+                        )
         
     def test_load_balance_on_dportv6(self):
         """
