@@ -13,13 +13,13 @@ class LoadbalanceOnSrcPortTestV4(T0TestBase):
         """
         T0TestBase.setUp(self,
                          is_create_route_for_nhopgrp=True,
-                         is_reuse_lag_for_nhopgrp=True,
+                         is_create_route_for_lag=False,
                         )
         
     def test_load_balance_on_sportv4(self):
         """
         1. Generate different packets by updating src port
-        2. send these packets on port1
+        2. Send these packets on port1
         3. Check if packets are received on ports of lag1-4 equally
         """
         print("Ecmp l3 load balancing test based on src port")
@@ -101,13 +101,13 @@ class LoadbalanceOnSrcPortTestV6(T0TestBase):
         """
         T0TestBase.setUp(self,
                          is_create_route_for_nhopgrp=True,
-                         is_reuse_lag_for_nhopgrp=True,
+                         is_create_route_for_lag=False,
                         )
         
     def test_load_balance_on_sportv6(self):
         """
         1. Generate different packets by updating src port
-        2. send these packets on port1
+        2. Send these packets on port1
         3. Check if packets are received on ports of lag1-4 equally
         """
         print("Ecmp l3 load balancing test based on src port")
@@ -184,13 +184,13 @@ class LoadbalanceOnDstPortTestV4(T0TestBase):
         """
         T0TestBase.setUp(self,
                          is_create_route_for_nhopgrp=True,
-                         is_reuse_lag_for_nhopgrp=True,
+                         is_create_route_for_lag=False,
                         )
         
     def test_load_balance_on_dportv4(self):
         """
         1. Generate different packets by updating dst port
-        2. send these packets on port1
+        2. Send these packets on port1
         3. Check if packets are received on ports of lag1-4 equally
         """
         print("Ecmp l3 load balancing test based on dst port")
@@ -272,13 +272,13 @@ class LoadbalanceOnDstPortTestV6(T0TestBase):
         """
         T0TestBase.setUp(self,
                          is_create_route_for_nhopgrp=True,
-                         is_reuse_lag_for_nhopgrp=True,
+                         is_create_route_for_lag=False,
                         )
         
     def test_load_balance_on_dportv6(self):
         """
         1. Generate different packets by updating dst port
-        2. send these packets on port1
+        2. Send these packets on port1
         3. Check if packets are received on ports of lag1-4 equally
         """
         print("Ecmp l3 load balancing test based on dst port")
@@ -355,13 +355,13 @@ class LoadbalanceOnSrcIPTestV4(T0TestBase):
         """
         T0TestBase.setUp(self,
                          is_create_route_for_nhopgrp=True,
-                         is_reuse_lag_for_nhopgrp=True,
+                         is_create_route_for_lag=False,
                         )
         
     def test_load_balance_on_sipv4(self):
         """
         1. Generate different packets by updating src ip (192.168.0.1-192.168.0.10)
-        2. send these packets on port1
+        2. Send these packets on port1
         3. Check if packets are received on ports of lag1-4 equally
         """
         print("Ecmp l3 load balancing test based on src ip")
@@ -437,13 +437,13 @@ class LoadbalanceOnSrcIPTestV6(T0TestBase):
         """
         T0TestBase.setUp(self,
                          is_create_route_for_nhopgrp=True,
-                         is_reuse_lag_for_nhopgrp=True,
+                         is_create_route_for_lag=False,
                         )
         
     def test_load_balance_on_sipv6(self):
         """
         1. Generate different packets by updating src ip (192.168.0.1-192.168.0.10)
-        2. send these packets on port1
+        2. Send these packets on port1
         3. Check if packets are received on ports of lag1-4 equally
         """
         print("Ecmp l3 load balancing test based on src ip")

@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from data_module.nexthop import Nexthop
 
 @auto_str
-class NexthopGroup(object):
+class NexthopGroup(route_item):
     """
     Represent the nexthop group(next hop group) object.
     Attrs:
