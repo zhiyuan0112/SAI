@@ -19,7 +19,6 @@
 #
 
 
-from unittest import skip
 from sai_test_base import T0TestBase
 from sai_utils import *
 
@@ -427,4 +426,116 @@ class IngressMtuTestV6(T0TestBase):
         sai_thrift_set_router_interface_attribute(
                 self.client, self.dut.vlans[10].rif_list[0], mtu=self.mtu_port10_rif['mtu'])
         self.assertEqual(self.status(), SAI_STATUS_SUCCESS)
+        super().tearDown()
+
+
+class RouteRifSvi(T0TestBase):
+    """
+    Verify route connect to a lag rif directly.
+    """
+
+    def setUp(self):
+        """
+        Set up test.
+        """
+        T0TestBase.setUp(self)
+
+    def test_route_rif_svi(self):
+        """
+        1. Make sure route for 192.168.2.0/24 existing as common config(use rif as nexthop in route setting)
+        2. Send packet within 192.168.2.0/24 from different ports with vlan10, with dest ip 192.168.2.9 - 192.168.2.16.
+        3. Receive packets on port9-16 base on different packet dest ip
+        """
+        print("\ntest_route_rif_svi()")
+
+        src_dev = self.servers[2][0]
+        ip_src = src_dev.ipv4
+        recv_dev_port_idxs = self.dut.vlans[10].port_idx_list
+        begin_port = 2000
+
+        for index in range(9):
+            src_port = begin_port + index
+            ip_dst = self.servers[2][index + 9].ipv4
+            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                    eth_src=src_dev.mac,
+                                    ip_dst=ip_dst,
+                                    ip_src=ip_src,
+                                    tcp_sport=src_port,
+                                    ip_id=105,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst=self.dut.vlans[10].neighbor_mac,
+                                    eth_src=ROUTER_MAC,
+                                    ip_dst=ip_dst,
+                                    ip_src=ip_src,
+                                    tcp_sport=src_port,
+                                    ip_id=105,
+                                    ip_ttl=63)
+            
+            send_packet(self, self.dut.port_obj_list[1].dev_port_index, pkt)
+            verify_packet_any_port(self, exp_pkt, recv_dev_port_idxs)
+    
+    def runTest(self):
+        self.test_route_rif_svi()
+
+    def tearDown(self):
+        """
+        Test the basic tearDown process
+        """
+        super().tearDown()
+
+
+#----> TODO
+# replace self.servers[11][0] with self.servers[15][0]
+class RouteRifLag(T0TestBase):
+    """
+    Verify route connect to a lag rif directly.
+    """
+
+    def setUp(self):
+        """
+        Set up test.
+        """
+        T0TestBase.setUp(self)
+
+    def test_route_rif_lag(self):
+        """
+        1. Make sure route for 192.168.15.0/24 existing as common config(use rif as nexthop in route setting)
+        2. Send packet within 192.168.15.0/24 from different ports, with dest ip 192.168.15.1 - 192.168.15.16.
+        3. Receive packets on different LAG4 members base on different packets dest ip
+        """
+        print("\ntest_route_rif_lag()")
+
+        src_dev = self.servers[11][0]
+        ip_src = src_dev.ipv4
+        recv_dev_port_idxs = self.get_dev_port_indexes(self.servers[11][1].l3_lag_obj.member_port_indexs)
+        begin_port = 2000
+
+        for index in range(17):
+            src_port = begin_port + index
+            ip_dst = self.servers[11][index + 1].ipv4
+            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                    eth_src=src_dev.mac,
+                                    ip_dst=ip_dst,
+                                    ip_src=ip_src,
+                                    tcp_sport=src_port,
+                                    ip_id=105,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst=self.servers[11][1].l3_lag_obj.neighbor_mac,
+                                    eth_src=ROUTER_MAC,
+                                    ip_dst=ip_dst,
+                                    ip_src=ip_src,
+                                    tcp_sport=src_port,
+                                    ip_id=105,
+                                    ip_ttl=63)
+            
+            send_packet(self, self.dut.port_obj_list[1].dev_port_index, pkt)
+            verify_packet_any_port(self, exp_pkt, recv_dev_port_idxs)
+    
+    def runTest(self):
+        self.test_route_rif_lag()
+
+    def tearDown(self):
+        """
+        Test the basic tearDown process
+        """
         super().tearDown()
