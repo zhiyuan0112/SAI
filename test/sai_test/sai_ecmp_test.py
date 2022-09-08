@@ -888,3 +888,97 @@ class RemoveLagEcmpTestV4(T0TestBase):
         self.route_configer.create_nhop_member_by_lag_port_idxs(
             nhp_grp_obj=self.dut.nhp_grpv4_list[0], lag_idx=3)
         super().tearDown()
+
+
+class EcmpReuseLagNexthopTestV4(T0TestBase):
+    """
+    Verify the lags route can work when ecmp reuse lags' nexthop.
+    """
+
+    def setUp(self):
+        """
+        Test the basic setup process
+        """
+        T0TestBase.setUp(self,
+                         is_create_route_for_nhopgrp=True,
+                         is_create_route_for_lag=False,
+                         is_reuse_lag_nhop=True,
+                        )
+        
+    def test_ecmp_reuse_lag_nexthop(self):
+        """
+        1. make sure the route for ip subnet 192.168.60.0/24 and other lags routes 192.168.11.0/24 ~ 192.168.14.0/24 route are coexist (use the same nexthop)
+        2. send packet within 192.168.60.0/24
+        3. Verify received packet on LAG1~4 members
+        4. Send packets within 192.168.11.0/24 ~ 192.168.14.0/24, respectively
+        5. Verify Received packet belong to each LAG respectively
+        """
+        print("Reuse lag's nexthop")
+        
+        src_dev = self.servers[0][0]
+        dst_dev = self.servers[60][0]
+        recv_dev_port_idxs = self.get_dev_port_indexes(
+            list(filter(lambda item: item != 1, self.dut.nhp_grpv4_list[0].member_port_indexs)))
+        cnt_ports = len(recv_dev_port_idxs)
+        rcv_count = [0 for _ in range(cnt_ports)]
+        
+        max_itrs = 400
+        begin_port = 2000
+        for port_index in range(0, max_itrs):
+            src_port = begin_port + port_index
+            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                    eth_src=self.servers[1][1].mac,
+                                    ip_dst=dst_dev.ipv4,
+                                    ip_src=src_dev.ipv4,
+                                    tcp_sport= src_port,
+                                    ip_id=105,
+                                    ip_ttl=64)
+
+            exp_pkts = []
+            for index in range(4):
+                exp_pkt = simple_tcp_packet(eth_dst=self.t1_list[index + 1][100].mac,
+                                    eth_src=ROUTER_MAC,
+                                    ip_dst=dst_dev.ipv4,
+                                    ip_src=src_dev.ipv4,
+                                    tcp_sport= src_port,
+                                    ip_id=105,
+                                    ip_ttl=63)
+                exp_pkts.append(exp_pkt)
+
+            send_packet(self, self.dut.port_obj_list[1].dev_port_index, pkt)
+            rcv_idx = verify_any_packet_any_port(self, exp_pkts, recv_dev_port_idxs)
+            rcv_count[rcv_idx] += 1
+        
+        print(rcv_count)
+        for i in range(0, cnt_ports):
+            self.assertTrue((rcv_count[i] >= (max_itrs / cnt_ports * 0.8)), "Not all paths are equally balanced")
+        print("Received packet on LAG1~4 members")
+        
+        print("Send packets within 192.168.11.0/24 ~ 192.168.14.0/24, respectively")
+        for index in range(11, 15):
+            dst_dev = self.servers[index][0]
+            port_index = index - 11
+            src_port = begin_port + port_index
+            pkt = simple_tcp_packet(eth_dst=ROUTER_MAC,
+                                    eth_src=self.servers[1][1].mac,
+                                    ip_dst=dst_dev.ipv4,
+                                    ip_src=src_dev.ipv4,
+                                    tcp_sport= src_port,
+                                    ip_id=105,
+                                    ip_ttl=64)
+            exp_pkt = simple_tcp_packet(eth_dst=self.t1_list[index-10][100].mac,
+                                        eth_src=ROUTER_MAC,
+                                        ip_dst=dst_dev.ipv4,
+                                        ip_src=src_dev.ipv4,
+                                        tcp_sport= src_port,
+                                        ip_id=105,
+                                        ip_ttl=63)
+            send_packet(self, self.dut.port_obj_list[1].dev_port_index, pkt)
+            recv_port_idxs = port_index * 2
+            verify_any_packet_any_port(self, exp_pkt, recv_dev_port_idxs[recv_port_idxs:recv_port_idxs+2])
+
+    def runTest(self):
+        self.test_ecmp_reuse_lag_nexthop()
+
+    def tearDown(self):
+        super().tearDown()

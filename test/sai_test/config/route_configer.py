@@ -46,6 +46,7 @@ def t0_route_config_helper(
         is_create_vlan_interface=True,
         is_create_route_for_vlan=True,
         is_create_route_for_nhopgrp=False,
+        is_reuse_lag_nhop=False,
         ):
     """
     Make t0 route configurations base on the configuration in the test plan.
@@ -59,6 +60,7 @@ def t0_route_config_helper(
         is_create_vlan_interface: defaule is true
         is_create_route_for_vlan: defaule is True
         is_create_route_for_nhopgrp: defaule is false
+        is_reuse_lag_nhop: default is false
 
     Set the following test_obj attributes:
         int: default_vrf
@@ -227,6 +229,27 @@ def t0_route_config_helper(
                                                             nexthop_device=test_obj.t1_list[t1_idx][100])
             nhpv4_list.append(nhv4)
             nhpv6_list.append(nhv6)
+            
+            if is_reuse_lag_nhop:
+                server_idx = 11 + lag_idx
+                print("Create route for server with in ip {}/{}".format(test_obj.servers[server_idx][0].ipv4, 24))
+                test_obj.servers[server_idx][0].ip_prefix = '24'
+                test_obj.servers[server_idx][0].ip_prefix_v6 = '112'
+                
+                test_obj.dut.lag_list[lag_idx].nexthopv4_list.append(nhv4)
+                test_obj.dut.lag_list[lag_idx].nexthopv6_list.append(nhv6)
+                routev4, routev6 = route_configer.create_route_by_nexthop(
+                    dest_device=test_obj.servers[server_idx][0],
+                    nexthopv4=nhv4,
+                    nexthopv6=nhv6)
+                # set expected dest server
+                for item in test_obj.servers[server_idx]:
+                    item.l3_lag_obj = test_obj.dut.lag_list[lag_idx]
+                    item.l3_lag_obj.neighbor_mac = test_obj.t1_list[t1_idx][100].mac
+                    item.routev4 = routev4
+                    item.routev6 = routev6
+                # set expected dest T1
+                test_obj.t1_list[t1_idx][100].l3_lag_obj = test_obj.dut.lag_list[lag_idx]
 
         print("Create nexthop group for server with in ip {}/{}".format(test_obj.servers[60][0].ipv4, 24))
         test_obj.servers[60][0].ip_prefix = '24'
