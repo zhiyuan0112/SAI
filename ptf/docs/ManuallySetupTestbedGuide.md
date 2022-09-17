@@ -1,4 +1,4 @@
-# SAI PTF test user guide
+# Manually Setup Testbed Guide
 
 This section describes how to set up the testing environment manually and run PTF test cases on your device under test (DUT). 
 For how to setup the environment with SONiC-MGMT script please refer [Deploy SAI Test Topology With SONiC-MGMT](DeploySAITestTopologyWithSONiC-MGMT.md)

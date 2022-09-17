@@ -1,7 +1,7 @@
 # SAI PTF overview
 
 ## [Overview](docs/PTF-SAIv2Overview.md)
-- [SAI PTF user guide](docs/SAI_PTF_user-guide.md)
+- [SAI PTF user guide](docs/ManuallySetupTestbedGuide.md)
 - [Deploy SAI PTF Test Topology With SONiC-MGMT](docs/DeploySAITestTopologyWithSONiC-MGMT.md)
 - [Building Related Resources](docs/GetDockerBuildingRelatedResources.md)
 - [Example: Run SAI PTF Case](docs/SAI.Example.md)

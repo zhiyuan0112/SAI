@@ -37,13 +37,70 @@ $(BRCM_SAI_DEV)_URL = "https://sonicstorage.blob.core.windows.net/packages/bcmsa
 
 ## Check SONiC Version
 
-**Old version might hit some issue caused by a related package upgrade, you can always use the latest tag of a major version(i.e major is 20201231) but notice the matching image version.**
+1. Check SONiC version in a DUT
+
+   **Old version might hit some issue caused by a related package upgrade, you can always use the latest tag of a major version(i.e major is 20201231) but notice the matching image version.**
+      ```
+      # Image build with tag
+      show version
+      SONiC Software Version: SONiC.20201231.39
+      ```
+      ```
+      # Image build without tag
+      SONiC Software Version: SONiC.master.39085-dirty-20210923.145659
+      ```
+
+
+1.  Get the commit id from sonic-buildimage.
+
+      *ps. sonic-buildimage is a repository used to build sonic images and docker images. SAI is a submodule in sonic-buildimage(/sonic-buildimage/tree/master/src/sonic-sairedis). The commit id in sonic-buildimage can be used to get all the submodules for its submodule, like sai.*
+
+      In your dev environment, install pre-requirement lib, e.g. pip and jinja, re-located code to that tag and resident on a new branch, 
+      here we use repository [sonic-buildimage](https://github.com/Azure/sonic-buildimage)
+      Follow the doc at [Check SAI Header Version And SONiC Branch](CheckVersion.md)
+
+   - Get commit id from tag.
+
+      ```	
+      git clone https://github.com/Azure/sonic-buildimage.git
+      cd sonic-buildimage
+
+      # git checkout tags/<tag> -b <branch>
+      # Example:
+      git checkout tags/20201231.39 -b richardyu/20201231-39
+      #check the commit id
+      git rev-list -n 1 20201231.39
+      ```
+   - Get commit id from docker image
+      ```
+      #Get image name
+      docker images
+      REPOSITORY                                        TAG                                  IMAGE ID            CREATED             SIZE   
+      ...   
+      docker-orchagent                                  latest                               99d39d932020        6 weeks ago         443MB
+      ```
+      Check image information
+      ```
+      docker image inspect docker-orchagent:latest
+      "Image": "sha256:...",
+            "Volumes": null,
+            "WorkingDir": "",
+            ...
+            "OnBuild": null,
+            "Labels": {
+                "Tag": "master.39085-bc06c6fcb",
+
+      ```
+      **bc06c6fcb is the commit id in sonic-buildimage** 
+
+   > *note: Check submodule recursively*
    ```
-   # Image build with tag
-   show version
-   SONiC Software Version: SONiC.20201231.39
+   git submodule update --init --recursive
+
+   # Execute make init once after cloning the repo, or after fetching the remote repo with submodule updates
+
+   make init
    ```
-   ```
-   # Image build without tag
-   SONiC Software Version: SONiC.master.39085-dirty-20210923.145659
-   ```
+   > *Note: Follow the resource to get how to build a binary and docker*
+
+   [GitHub - Azure/sonic-buildimage: Scripts which perform an installable binary image build for SONiC](https://github.com/Azure/sonic-buildimage)
