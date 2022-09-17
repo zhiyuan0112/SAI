@@ -22,7 +22,7 @@ apt list --installed| grep libsai
 ```
 5. Check out the code from [sonic-buildimage](https://github.com/Azure/sonic-buildimage.git), 
 > *Note: remember to change the branch*
-6. Check out the code for the matching sonic version [Example: Check sonic version and build saiserver docker](./ExampleCheckSonicVersionAndBuildSaiserverDocker.md) ,
+6. Check out the code for the matching sonic version [Example: Check sonic version and build related saiserver docker](./ExampleCheckSonicVersionAndBuildSaiserverDocker.md) ,
 Check the file content at [platform/broadcom/sai.mk](https://github.com/Azure/sonic-buildimage/blob/master/platform/broadcom/sai.mk), there is the link to the binary we installed.
 ```
 The sai binary file and its name will be there

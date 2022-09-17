@@ -24,18 +24,39 @@ Besides, following the latter sections, we can also use other SONiC scripts to h
 
 ## Build PTF-SAIv2 infras leveraged by sonic-buildimage
 *In this part, we will build PTF-SAIv2 infras using sonic-buildimage.*
+In this section we will get components:
+1. Docker PTF, which contains all the runtime dependences
+2. Docker SAIServerv2, which contains the RPC Server(as described in ##Instructuon section), SAI SDK and all the running dependences
+3. python-saithrift, the RPC client, this binary will be generated when build the docker saiserverv2
 
-1. Check the sonic image version and commit id: [Check SAI Header Version And SONiC Branch](ExampleCheckSonicVersionAndBuildSaiserverDocker.md)
-2. Reset the sonic-buildimage with the branch and commit id previous checked
-    ```
-    rm -rf ./sonic-buildimage
-    git clone https://github.com/Azure/sonic-buildimage.git
-    cd sonic-buildimage
+> Note: SAIServer(RPC Server) and python-saithrift(RPC client) are built base on differernt SAI version, and they must be build from same version.
 
-    git checkout <specific branch>
-    git reset --hard <specific commit id>
-    ```
-3. Build PTF-SAIv2 infras 
+Preparation:
+Before start the build process, please make sure you get the get the right sonic buildimage branch.
+For how to check the sai header version and sonic branch from a certain sonic image please refer to
+[Check SAI Header Version And SONiC Branch](ExampleCheckSonicVersionAndBuildSaiserverDocker.md)
+
+> Note: the example below will base on the sonic 202012 branch
+
+1. Checkout code in sonic-buildimage repo
+> please check the  with the branch and commit id previous checked   
+
+```
+git clone https://github.com/Azure/sonic-buildimage.git
+cd sonic-buildimage
+
+git checkout <specific branch>
+git reset --hard <specific commit id>
+```
+Here we use 202012 branch for example:
+```
+git clone https://github.com/Azure/sonic-buildimage.git
+cd sonic-buildimage
+git checkout 202012    
+```
+2. Build PTF-SAIv2 infras 
+
+- build saiserverv2
     ```
     # Init env
     make init
@@ -46,24 +67,59 @@ Besides, following the latter sections, we can also use other SONiC scripts to h
     # SAITHRIFT_V2=y: build the saiserver version 2rd
     # build brcm saiserverv2 docker 
     make BLDENV=buster SAITHRIFT_V2=y -f Makefile.work target/docker-saiserverv2-brcm.gz
+    ```
 
-    # build ptf-sai docker
+- build docker ptf-sai
+    ```
+    # build docker ptf-sai
     # Clean environment
     make reset
 
     # Setup platform environment e.g. virtual switch
     make BLDENV=buster configure PLATFORM=vs
 
-    make BLDENV=buster SAITHRIFT_V2=y -f Makefile.work target/docker-ptf-sai.gz
+    make BLDENV=buster SAITHRIFT_V2=y target/docker-ptf-sai.gz
     ```
+
+### Generated binaries and dockers
+
+- docker saiserverv2 at <local_folder>/sonic-buildimage/target/docker-saiserverv2-brcm.gz
+- docker ptf-sai at <local_folder>/target/docker-ptf-sai.gz
+- python_saithrift at  <local_folder>/target/debs/buster/python-saithrift_0.9.4_amd64.deb
+
+> Note: for different platform(BLDENV=buster), the output folder might different, i.e. BLDENV=bullseye, it will be <local_folder>/target/debs/bullseye
+
  
 ## Setup the testbed by sonic-mgmt
 
-*In this section, we will set up the physical switch testbed.*
-1. Install the sonic image in the DUT, as for how to install a sonic image on the supported switch, please refer to this doc [Install sonic eos image](https://github.com/Azure/SONiC/wiki/Quick-Start#install-sonic-eos-image)
-2. [Deploy SAI Test Topology With SONiC-MGMT](DeploySAITestTopologyWithSONiC-MGMT.md)
+*In this section, we will set up the physical switch testbed by sonic-mgmt.*
+prepration:
+ Install the sonic image in the DUT, as for how to install a sonic image on the supported switch, please refer to this doc [Install sonic eos image](https://github.com/Azure/SONiC/wiki/Quick-Start#install-sonic-eos-image)
+ You have a local docker rigistry which can be used to push and pull dockers
 
-For the setup of ptf-sai docker, you can refer to this section [Setup Docker Registry for docker-ptf](https://github.com/Azure/sonic-mgmt/blob/master/docs/testbed/README.testbed.Setup.md#setup-docker-registry-for-docker-ptf), please replace the `docker-ptf` with `docker-ptf-sai` 
+1. upload the build out dockers in previous step
+```
+docker load -i <local_folder>/sonic-buildimage/target/docker-saiserverv2-brcm.gz
+docker load -i <local_folder>/target/docker-ptf-sai.gz
+
+docker push <docker-registry-addreee>/docker-saiserverv2-brcm:<TAG_WITH_OS_VERSION>
+docker push <docker-registry-addreee>/docker-ptf-sai:<TAG_WITH_OS_VERSION>
+```
+> For the setup of ptf-sai docker, you can refer to this section [Setup Docker Registry for docker-ptf](https://github.com/Azure/sonic-mgmt/blob/master/docs/testbed/README.testbed.Setup.md#setup-docker-registry-for-docker-ptf), please replace the `docker-ptf` with `docker-ptf-sai` 
+
+2. Add docker registry for sonic-mgmt
+```
+# Edit file <local_folder>/sonic-mgmt/ansible/vars/docker_registry.yml with your local docker reigstry
+docker_registry_host: <docker-reigstry>:<port>
+```
+
+3. Deploy SAI Test Topology With SONiC-MGMT
+> For the detailed steps please refer to [Deploy SAI Test Topology With SONiC-MGMT](DeploySAITestTopologyWithSONiC-MGMT.md)
+
+For example, for the test bed config `vms-sn2700-t1-lag`, it should be
+```
+/data/<repo_sonic-mgmt>/testbed-cli.sh -t testbed.yaml add-topo vms-sn2700-t1 password.txt
+```
 
 ## Prepare the saiserverv2 docker on DUT (Device under testing)
 *In this section, we will introduce how to setup the saiserverv2 docker in DUT.*
