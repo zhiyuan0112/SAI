@@ -15,7 +15,6 @@ Otherwise, you can upload the docker file from a local building and manually upl
 ```shell
 docker load -i ./<DOCKERFILE>
 ```
-> please refer to doc for how to build a saiserver docker
-[Check Sonic Version](./CheckVersion.md#check-sonic-version) and [Build Saiserver Docker](./BuildSaiserverDocker.md)
+
 
 

@@ -1,6 +1,11 @@
 # Check SAI Header Version And SONiC Version
 *In this article, you will get known how to get the SAI header version and SONiC Version.*
 
+- [Check SAI Header Version And SONiC Version](#check-sai-header-version-and-sonic-version)
+  - [Check SAI Header Version](#check-sai-header-version)
+  - [Check SONiC Version](#check-sonic-version)
+  - [Get the commit id from sonic-buildimage.](#get-the-commit-id-from-sonic-buildimage)
+
 ## Check SAI Header Version
 For sai, it has many versions and spread with those versions, different SAI header(SPI) defined across them, for testing different SAI headers, we need different SAI binary and SAI Server
 	
@@ -37,7 +42,7 @@ $(BRCM_SAI_DEV)_URL = "https://sonicstorage.blob.core.windows.net/packages/bcmsa
 
 ## Check SONiC Version
 
-1. Check SONiC version in a DUT
+Check SONiC version in a DUT
 
    **Old version might hit some issue caused by a related package upgrade, you can always use the latest tag of a major version(i.e major is 20201231) but notice the matching image version.**
       ```
@@ -51,7 +56,7 @@ $(BRCM_SAI_DEV)_URL = "https://sonicstorage.blob.core.windows.net/packages/bcmsa
       ```
 
 
-1.  Get the commit id from sonic-buildimage.
+##  Get the commit id from sonic-buildimage.
 
       *ps. sonic-buildimage is a repository used to build sonic images and docker images. SAI is a submodule in sonic-buildimage(/sonic-buildimage/tree/master/src/sonic-sairedis). The commit id in sonic-buildimage can be used to get all the submodules for its submodule, like sai.*
 
