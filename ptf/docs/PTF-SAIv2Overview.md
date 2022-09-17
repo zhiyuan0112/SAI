@@ -25,16 +25,8 @@ Besides, following the latter sections, we can also use other SONiC scripts to h
 ## Build PTF-SAIv2 infras leveraged by sonic-buildimage
 *In this part, we will build PTF-SAIv2 infras using sonic-buildimage.*
 
-1. Check the sonic image version and commit id: [Check SAI Header Version And SONiC Branch](ExampleCheckSonicVersionAndBuildSaiserverDocker.md)
-2. Reset the sonic-buildimage with the branch and commit id previous checked
-    ```
-    rm -rf ./sonic-buildimage
-    git clone https://github.com/Azure/sonic-buildimage.git
-    cd sonic-buildimage
-
-    git checkout <specific branch>
-    git reset --hard <specific commit id>
-    ```
+1. Check the sonic image version and commit id: [Check SAI Header Version And SONiC Branch](CheckVersion.md)
+2. Reset the sonic-buildimage with the branch and commit id previous checked: [Build Saiserver Docker](BuildSaiserverDocker.md)
 3. Build PTF-SAIv2 infras 
     ```
     # Init env
