@@ -174,19 +174,37 @@ Starting SAI RPC server on port 9092
     ```
 
 4. Start PTF-SAIv2 testing within ptf-sai docker
-   
-   > Note: Prepare a port_map_file named [default_interface_to_front_map.ini](https://github.com/opencomputeproject/SAI/blob/master/test/saithrift/src/msn_2700/default_interface_to_front_map.ini) in advance 
     ```shell
     # set the platform name
     export PLATFORM=<vendor name>
 
     # run a sanitytest
-    ptf --test-dir ptf saisanity.L2SanityTest --interface '<used port number and dataplane interface>' -t "thrift_server='<DUT IP address>';port_map_file='default_interface_to_front_map.ini'"
+    ptf --test-dir ptf saisanity.L2SanityTest --interface '<Port_index@eth_name>' -t "thrift_server='<DUT ip address>'"
 
     # use a broadcom switch with 32-port as an example 
    export PLATFORM=brcm
-   ptf --test-dir /tmp/SAI/ptf saisanity.L2SanityTest --interface '0-0@eth0' --interface '0-1@eth1' --interface '0-2@eth2' --interface '0-3@eth3' --interface '0-4@eth4' --interface '0-5@eth5' --interface '0-6@eth6' --interface '0-7@eth7' --interface '0-8@eth8' --interface '0-9@eth9' --interface '0-10@eth10' --interface '0-11@eth11' --interface '0-12@eth12' --interface '0-13@eth13' --interface '0-14@eth14' --interface '0-15@eth15' --interface '0-16@eth16' --interface '0-17@eth17' --interface '0-18@eth18' --interface '0-19@eth19' --interface '0-20@eth20' --interface '0-21@eth21' --interface '0-22@eth22' --interface '0-23@eth23' --interface '0-24@eth24' --interface '0-25@eth25' --interface '0-26@eth26' --interface '0-27@eth27' --interface '0-28@eth28' --interface '0-29@eth29' --interface '0-30@eth30' --interface '0-31@eth31' "--test-params=thrift_server='<DUT ip address>'"
+   ptf --test-dir /tmp/SAI/ptf saisanity.L2SanityTest --interface '0@eth0' --interface '1@eth1' --interface '2@eth2' --interface '3@eth3' --interface '4@eth4' --interface '5@eth5' --interface '6@eth6' --interface '7@eth7' --interface '8@eth8' --interface '9@eth9' --interface '10@eth10' --interface '11@eth11' --interface '12@eth12' --interface '13@eth13' --interface '14@eth14' --interface '15@eth15' --interface '16@eth16' --interface '17@eth17' --interface '18@eth18' --interface '19@eth19' --interface '20@eth20' --interface '21@eth21' --interface '22@eth22' --interface '23@eth23' --interface '24@eth24' --interface '25@eth25' --interface '26@eth26' --interface '27@eth27' --interface '28@eth28' --interface '29@eth29' --interface '30@eth30' --interface '31@eth31' "--test-params=thrift_server='<DUT ip address>'"
     ```
+
+Specification for parameter ``--interface '<Port_index@eth_name>'``
+- Port_index
+```shell
+# check local interfaces
+> ifconfig
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 9216
+...
+
+eth1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 9216
+...
+```
+- eth_name
+```python
+# eth0, eth1 ... are the eth_name
+# Port_index will be used in test cases like
+# If we have parameter 1@eth1, then 1 will map to eth1
+send_packet(self, 1, pkt)
+```
+
 Finally, we can see the result as shown below:
 
 ```
