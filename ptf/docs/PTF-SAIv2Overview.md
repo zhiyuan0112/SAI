@@ -47,11 +47,11 @@ Key aspects of the physical connection:
 
 In the following, we use other SONiC scripts to help setup the [SAI PTF topology](https://github.com/sonic-net/sonic-mgmt/blob/master/docs/testbed/README.testbed.Overview.md#ptf-type-topology) environment with all the testing components mentioned in [SAI PTF introduction and manually setup Testbed](ManuallySetupTestbedGuide.md).
 
-### Build PTF-SAIv2 infras leveraged by sonic-buildimage
+### Prepare PTF-SAIv2 infras
 
 In this section we will get components:
 1. Docker PTF, which contains all the runtime dependences
-2. Docker SAIServerv2, which contains the RPC Server(as described in ##Instructuon section), SAI SDK and all the running dependences
+2. Docker SAIServerv2, which contains the RPC Server (as described in ##Instructuon section), SAI SDK and all the running dependences
 3. python-saithrift, the RPC client, this binary will be generated when build the docker saiserverv2
 
 > Note: SAIServer (RPC Server) and python-saithrift (RPC client) are built base on differernt SAI version, and they must be build from same version.
@@ -79,46 +79,55 @@ For how to check the sai header version and sonic branch from a certain sonic im
     cd sonic-buildimage
     git checkout 202012    
     ```
+
 2. Build PTF-SAIv2 infras 
 
-- build saiserverv2
-  > For more detailed steps, please refer to [Build Saiserver Docker](BuildSaiserverDocker.md)
-    ```
-    # Init env
-    make init
-    # BLDENV=buster: Current image is buster
-    # PLATFORM=<vendor name> Setup platform environment e.g. broadcom
-    make BLDENV=buster configure PLATFORM=broadcom
+    - build saiserverv2
+    > For more detailed steps, please refer to [Build Saiserver Docker](BuildSaiserverDocker.md)
+        ```
+        # Init env
+        make init
+        # BLDENV=buster: Current image is buster
+        # PLATFORM=<vendor name> Setup platform environment e.g. broadcom
+        make BLDENV=buster configure PLATFORM=broadcom
 
-    # SAITHRIFT_V2=y: build the saiserver version 2rd
+        # SAITHRIFT_V2=y: build the saiserver version 2rd
+        # build brcm saiserverv2 docker 
     # build brcm saiserverv2 docker 
-    make BLDENV=buster SAITHRIFT_V2=y -f Makefile.work target/docker-saiserverv2-brcm.gz
-    ```
+        # build brcm saiserverv2 docker 
+        make BLDENV=buster SAITHRIFT_V2=y -f Makefile.work target/docker-saiserverv2-brcm.gz
+        ```
 
-- build docker ptf-sai
-    ```
-    # build docker ptf-sai
-    # Clean environment
-    make reset
+    - build docker ptf-sai
+        ```
+        # build docker ptf-sai
+        # Clean environment
+        make reset
 
-    # Setup platform environment e.g. virtual switch
-    make BLDENV=buster configure PLATFORM=vs
+        # Setup platform environment e.g. virtual switch
+        make BLDENV=buster configure PLATFORM=vs
 
-    make BLDENV=buster SAITHRIFT_V2=y target/docker-ptf-sai.gz
-    ```
+        make BLDENV=buster SAITHRIFT_V2=y target/docker-ptf-sai.gz
+        ```
 
-3. Generated binaries and dockers
+3. Generate binaries and dockers
 
     - docker saiserverv2 at <local_folder>/sonic-buildimage/target/docker-saiserverv2-brcm.gz
     - docker ptf-sai at <local_folder>/target/docker-ptf-sai.gz
-    - python_saithrift at  <local_folder>/target/debs/buster/python-saithrift_0.9.4_amd64.deb
+    - python_saithrift at <local_folder>/target/debs/buster/python-saithrift_0.9.4_amd64.deb
+      - Install the sai python header `python-saithriftv2_0.9.4_amd64.deb` into ptf-sai docker.
+      ```
+      # install the deb package into ptf-sai docker
+      dpkg -i python-saithriftv2_0.9.4_amd64.deb          
+      ```
 
-    > Note: for different platform(BLDENV=buster), the output folder might different, i.e. BLDENV=bullseye, it will be <local_folder>/target/debs/bullseye
+    > Note: for different platform (BLDENV=buster), the output folder might be different, i.e. BLDENV=bullseye, it will be <local_folder>/target/debs/bullseye
 
  
 ### Setup the testbed by sonic-mgmt
 
 *In this section, we will set up the physical switch testbed by sonic-mgmt.*
+
 prepration:
  Install the sonic image in the DUT, as for how to install a sonic image on the supported switch, please refer to this doc [Install sonic eos image](https://github.com/Azure/SONiC/wiki/Quick-Start#install-sonic-eos-image)
  You have a local docker rigistry which can be used to push and pull dockers
@@ -162,9 +171,9 @@ prepration:
     }
     stop_service
     ```
-3. Upload the saiserverv2 docker you built from the previous section to your DUT or Pull saiserverv2 docker image from the registry, as for the detailed setup of the docker registry, please refer to [Example: Start SaiServer Docker In DUT](ExampleStartSaiServerDockerInDUT.md)  
+3. Upload the saiserverv2 docker you built from the previous section to your DUT or Pull saiserverv2 docker image from the registry.
 
-4. Start your saiserver binary from saiserverv2 docker, for detailed information, please refer to this section [Prepare testing environment on DUT](SAI.Example.md#prepare-testing-environment-on-dut):
+4. Start your saiserver binary from saiserverv2 docker:
     
     After successfully starting the saiserver binary, we can get those outputs from the shell:
     ```
@@ -185,12 +194,8 @@ prepration:
 *In the last section, we will setup our testing environment and run a sanity test on PTF side.*
 
 1. Log in to the ptf-sai docker, you can find the IP address of docker which is connected to the DUT in [testbed.yaml](https://github.com/Azure/sonic-mgmt/blob/master/ansible/testbed.yaml).  
-2. Install the sai python header `python-saithriftv2_0.9.4_amd64.deb` into ptf-sai docker.
-    ```
-    # install the deb package into ptf-sai docker
-    dpkg -i python-saithriftv2_0.9.4_amd64.deb          
-    ```
-3. Make sure Github is accessible on ptf-sai docker and download the SAI repo which contains PTF-SAIv2 test cases 
+
+2. Make sure Github is accessible on ptf-sai docker and download the SAI repo which contains PTF-SAIv2 test cases 
     ```
     rm -rf ./SAI
     git clone https://github.com/opencomputeproject/SAI.git
@@ -198,7 +203,7 @@ prepration:
     git master v1.9
     ```
 
-4. Start PTF-SAIv2 testing within ptf-sai docker
+3. Start PTF-SAIv2 testing within ptf-sai docker
     ```shell
     # set the platform name
     export PLATFORM=<vendor name>
@@ -256,5 +261,4 @@ OK
 * Manually setup Testbed [SAI PTF introduction and manually setup Testbed](ManuallySetupTestbedGuide.md)
 * Build PTF-SAIv2 infras leveraged by [sonic-buildimage](https://github.com/Azure/sonic-buildimage)
 * Setup the testbed by sonic-mgmt [Deploy SAI Test Topology With SONiC-MGMT](DeploySAITestTopologyWithSONiC-MGMT.md)
-* Setup saiserverv2 docker on DUT (Device under testing) [Example:Start SaiServer Docker In DUT](ExampleStartSaiServerDockerInDUT.md)
-* Prepare the testing env and start PTF-SAIv2 testing within ptf-sai docker [Example: SAI Testing](SAI.Example.md)
+* Manually setup saiserverv2 docker on DUT (Device under testing) [Example:Start SaiServer Docker In DUT](ManualStartSaiServerDockerInDUT.md)
