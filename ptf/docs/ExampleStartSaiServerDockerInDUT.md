@@ -9,7 +9,7 @@ docker push <docker-registry-address>/docker-saiserver-<SHORTEN_ASIC>:<TAG_WITH_
 docker pull soniccr1.azurecr.io/docker-saiserver-brcm:20201231.29
 ```
 Otherwise, you can upload the docker file from a local building, please refer to doc for how to build a saiserver docker
-[Example: Check Sonic Version And Build Saiserver Docker](./ExampleCheckSonicVersionAndBuildSaiserverDocker.md)
+[Check Sonic Version](./CheckVersion.md#check-sonic-version) and [Build Saiserver Docker](./BuildSaiserverDocker.md)
 
 then import and start the docker
 ```shell

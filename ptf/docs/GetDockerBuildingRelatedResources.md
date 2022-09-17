@@ -30,4 +30,4 @@ docker commit musing_payne slave-syncd-4334:0.0.1
 ```
 5. Then you can use the local commit docker for other SAI related buildings
 
-Here is a example [Example: Check sonic version and get a related builder](./ExampleCheckSonicVersionAndBuildSaiserverDocker.md)
+Please refer to [Check Sonic Version](./CheckVersion.md#check-sonic-version) and [Build Saiserver Docker](./BuildSaiserverDocker.md).

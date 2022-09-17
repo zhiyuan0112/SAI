@@ -6,7 +6,7 @@ Through previous docs make sure the PTF docker, sonic-mgmt docker, DUT (running 
 ### Prepare test cases on PTF
 In this section, we will prepare SAI test cases on the PTF docker.
 1. Logon to your PTF docker, make sure the PTF docker could access to GitHub, then type the following commands to clone SAI repo:
-- SAI **v1.7** will be used for this example since v1.7 is one of the supported SAI versions in SONiC.202012, for more information please check [Check SAI header with SONiC branch](CheckSAIHeaderVersionAndSONiCBranch.md) 
+- SAI **v1.7** will be used for this example since v1.7 is one of the supported SAI versions in SONiC.202012, for more information please check [Check SAI header with SONiC branch](CheckVersion.md#check-sai-header-version) 
 
 ```
 rm -rf ./SAI

@@ -34,7 +34,7 @@ In this section we will get components:
 Preparation:
 Before start the build process, please make sure you get the get the right sonic buildimage branch.
 For how to check the sai header version and sonic branch from a certain sonic image please refer to
-[Check SAI Header Version And SONiC Branch](ExampleCheckSonicVersionAndBuildSaiserverDocker.md)
+[Check SAI Header Version And SONiC Branch](CheckVersion.md)
 
 > Note: the example below will base on the sonic 202012 branch
 
@@ -57,6 +57,7 @@ git checkout 202012
 2. Build PTF-SAIv2 infras 
 
 - build saiserverv2
+  > For more detailed steps, please refer to [Build Saiserver Docker](BuildSaiserverDocker.md)
     ```
     # Init env
     make init
