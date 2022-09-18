@@ -283,4 +283,4 @@ OK
 * [SAI PTF introduction and manually setup Testbed](ManuallySetupTestbedGuide.md)
 * [sonic-buildimage user guide](https://github.com/Azure/sonic-buildimage)
 * [Deploy SAI Test Topology With SONiC-MGMT](DeploySAITestTopologyWithSONiC-MGMT.md)
-* [Manually setup saiserverv2 docker on DUT (Device under testing)](ManualStartSaiServerDockerInDUT.md)
+* [Setup Docker builder for debugging](SetupDockerBuilderForDebugging.md)
