@@ -29,7 +29,7 @@ For example, we want to use the config `vms-sn2700-t1-lag`, then we need to chan
    group-name: vms1-1
 -  topo: t1
 +  topo: ptf32
-   ptf_image_name: docker-ptf-sai < 
+   ptf_image_name: docker-ptf-saiv2 < 
 -  ptf: ptf-unknown
 +  ptf: ptf-docker-name
    ptf_ip: 10.255.0.178/24

@@ -8,8 +8,6 @@
   - [Setup Testbed](#setup-testbed)
     - [Build PTF-SAIv2 components](#build-ptf-saiv2-components)
     - [Setup the testbed by sonic-mgmt](#setup-the-testbed-by-sonic-mgmt)
-    - [Setup DUT (Device under testing)](#setup-dut-device-under-testing)
-    - [Setup ptf-sai docker and run test](#setup-ptf-sai-docker-and-run-test)
   - [Reference](#reference)
 
 
@@ -106,9 +104,7 @@ For how to check the sai header version and sonic branch from a certain sonic im
         # PLATFORM=<vendor name> Setup platform environment e.g. broadcom
         make BLDENV=buster configure PLATFORM=broadcom
 
-        # SAITHRIFT_V2=y: build the saiserver version 2rd
-        # build brcm saiserverv2 docker 
-        # build brcm saiserverv2 docker 
+        # SAITHRIFT_V2=y: build the saiserver version 2nd
         # build brcm saiserverv2 docker 
         make BLDENV=buster SAITHRIFT_V2=y -f Makefile.work target/docker-saiserverv2-brcm.gz
         ```
@@ -139,31 +135,63 @@ For how to check the sai header version and sonic branch from a certain sonic im
 
 *In this section, we will set up the physical switch testbed by sonic-mgmt.*
 
-prepration:
- Install the sonic image in the DUT, as for how to install a sonic image on the supported switch, please refer to this doc [Install sonic eos image](https://github.com/Azure/SONiC/wiki/Quick-Start#install-sonic-eos-image)
- You have a local docker rigistry which can be used to push and pull dockers
+Precondition:
 
-1. upload the build out dockers
-   We need to upload those docker to your local available docker registery:
+- Install the sonic image in the DUT, as for how to install a sonic image on the supported switch, please refer to this doc [Install sonic eos image](https://github.com/Azure/SONiC/wiki/Quick-Start#install-sonic-eos-image)
+You have a local docker rigistry which can be used to push and pull dockers
+
+1. Get the sonic OS version
+   
+   In order to use the script to prepare the environment, we need to get the right sonic os version for push the saiserver docker.
+   ```
+   # In a sonic os
+    ~$ show version
+
+    SONiC Software Version: SONiC.20201231.76
+    ...
+
+    Docker images:
+    REPOSITORY                                                 TAG                 IMAGE ID            SIZE
+    acs-repo.corp.microsoft.com:5001/docker-saiserverv2-brcm   20201231.76         32e9d2f6c269        751MB
+    docker-saiserverv2-brcm                                    latest              32e9d2f6c269        751MB
+    acs-repo.corp.microsoft.com:5001/docker-syncd-brcm-rpc     20201231.76         fc97962d4b2a        983MB
+    ```
+    **Here, the 20201231.76 is the OS_VERSION**
+2. upload the build out dockers 
+
+    We need to upload those docker to your local available docker registery:
     - docker saiserverv2 at <local_folder>/sonic-buildimage/target/docker-saiserverv2-brcm.gz
     - docker ptf-sai at <local_folder>/target/docker-ptf-sai.gz
     ```
     docker load -i <local_folder>/sonic-buildimage/target/docker-saiserverv2-brcm.gz
     docker load -i <local_folder>/target/docker-ptf-sai.gz
 
-    docker push <docker-registry-addreee>/docker-saiserverv2-brcm:<TAG_WITH_OS_VERSION>
-    docker push <docker-registry-addreee>/docker-ptf-sai:<TAG_WITH_OS_VERSION>
-    ```
-    > For the setup of ptf-sai docker, it similiar with this section [Setup Docker Registry for docker-ptf](https://github.com/Azure/sonic-mgmt/blob/master/docs/testbed/README.testbed.Setup.md#setup-docker-registry-for-docker-ptf). But here, we need to use `docker-ptf-sai`.
+    # tag docker
+    docker tag docker-saiserver-brcm:latest <docker-registry-addreee>/docker-saiserver-brcm:<TAG_WITH_OS_VERSION>
+    docker tag docker-ptf-sai <docker-registry-addreee>/docker-ptf-saiv2
 
-2. Add docker registry for sonic-mgmt
-   sonic-mgmt will try to pull the dependent ptf docker during the deployment process, we need to use the local docker registery here:
+    docker push <docker-registry-addreee>/docker-saiserverv2-brcm:<TAG_WITH_OS_VERSION>
+    docker push <docker-registry-addreee>/docker-ptf-saiv2
+
+    ```
+    > For the setup of ptf-sai docker, it similiar with this section [Setup Docker Registry for docker-ptf](https://github.com/Azure/sonic-mgmt/blob/master/docs/testbed/README.testbed.Setup.md#setup-docker-registry-for-docker-ptf). But here, we need to use `docker-ptf-saiv2`.
+
+    > Make sure you upload the docker-saiserverv2-brcm with the right TAG_WITH_OS_VERSION, it critical for latter dut setup script.
+
+    ```
+    # From step 1 the docker push command could be
+    docker push <docker-registry-addreee>/docker-saiserverv2-brcm:20201231.76
+    ```
+
+3. Add docker registry for sonic-mgmt
+
+    sonic-mgmt will try to pull the dependent ptf docker during the deployment process, we need to use the local docker registery here:
     ```
     # Edit file <local_folder>/sonic-mgmt/ansible/vars/docker_registry.yml with your local docker reigstry
     docker_registry_host: <docker-reigstry>:<port>
     ```
 
-3. Deploy SAI Test Topology With SONiC-MGMT
+4. Deploy SAI Test Topology With SONiC-MGMT
     
     For the detailed steps please refer to [Deploy SAI Test Topology With SONiC-MGMT](DeploySAITestTopologyWithSONiC-MGMT.md)
 
@@ -174,49 +202,100 @@ prepration:
 
 ### Setup DUT (Device under testing)
 *In this section, we will introduce how to setup the saiserverv2 docker in DUT.*
-1. Stop all the other services besides `database`, which might impact PTF-SAIv2 testing. (Recommended)
- 
-   You may activate some services according to your scenario, but please be sure to stop `swss` and `syncd`.
-    ```shell
-    services=("swss" "syncd" "radv" "lldp" "dhcp_relay" "teamd" "bgp" "pmon" "telemetry" "acms" "snmp")
-    stop_service(){
-        for serv in ${services[*]}; do
-            echo "stop service: [$serv]."
-            sudo systemctl stop $serv
-        done
-    }
-    stop_service
-    ```
-3. Upload the saiserverv2 docker you built from the previous section to your DUT or Pull saiserverv2 docker image from the registry.
+> we prepared some script to help setup the DUT, you can change some of the script as needed
 
-4. Start your saiserver binary from saiserverv2 docker:
+1. Install the script for setup DUT
+    ```
+    # clone the sonic-misc to your local environment
+    git clone https://github.com/richardyu-ms/sonic-misc/tree/master/sonic-scripts 
+
+    # scp the subfolder DUTScript to your dut
+    cd sonic-scripts
+    scp -r ./DUTScript admin@<DUT_IP>:~/
+    ```
+> below steps are under DUT
+2. go into folder DUTScript
+   ```
+   cd DUTScript
+   ```
+
+3. login to the docker your local repo and make sure it is accessable
+    ```
+    docker login <local_docker_reg>
+    ```
+
+4. pull saiserverv docker 
+
+    Change the docker registry in <sonic-misc>/DUTScript/pull_saiserver_syncd_rpc_dockers.sh
+    ```
     
-    After successfully starting the saiserver binary, we can get those outputs from the shell:
+    #SONIC_REG=<local_docker_reg>
     ```
-    admin@s6000:~$ usr/sbin/saiserver -p /etc/sai.d/sai.profile -f /usr/share/sonic/hwsku/port_config.ini 
-
-    profile map file: /usr/share/sonic/hwsku/sai.profile 
-
-    port map file: /usr/share/sonic/hwsku/port_config.ini 
-
-    insert: SAI_INIT_CONFIG_FILE:/usr/share/sonic/hwsku/td2-s6000-32x40G.config.bcm 
-
-    insert: SAI_NUM_ECMP_MEMBERS:32 
-
-    Starting SAI RPC server on port 9092 
+    Run command to pull docker base on OS version
+    ```
+    cd <sonic-misc>/DUTScript
+    # pull docker from docker reigstry
+    # for example, it will pull prepared 
+    # docker pull <docker-registry-addreee>/docker-saiserverv2-brcm:20201231.76
+    # v1 for saiserver v1, it will pull saiserver and syncd-rpc dockers
+    ./pull_saiserver_syncd_rpc_dockers.sh -v v2  
+    ```
+    > Make sure you pushed docker correctly.
+5. prepare saiserver 
+    ```
+    sudo ./prepare_saiserver_service.sh -v v2 
+    ```
+    There is the output
+    ```
+    make folder ... .
+    copy_syncd_files
+    change_scripts
+    comment out functions and variables
+    change saiserver version to v2
+    Start saiserver service
+            sudo systemctl start saiserver
+    Start sai server manually, run inside saiserver container with:
+            /usr/bin/start.sh
+            /usr/sbin/saiserver -p /etc/sai.d/sai.profile -f /usr/share/sonic/hwsku/port_config.ini
+    ```
+6. stop all listeners which are used to docker recovery
+    ```
+    sudo ./all_listener.sh -o stop
+    ```
+7. stop all the other docker services
+    ```
+    sudo ./all_service.sh -o stop
+    ```
+8. start saiserver
+    ```
+    sudo systemctl start saiserver
     ```
 
-### Setup ptf-sai docker and run test
+Right here saiserver should be started, you can check it by
+
+```
+#check the saiserver process
+docker exec -it saiserver ps -a
+#output
+PID TTY          TIME CMD
+    11 pts/0    00:00:01 rsyslogd
+714 pts/9    00:03:11 saiserver
+```
+
+### Setup ptf-sai docker 
 *In the last section, we will setup our testing environment and run a sanity test on PTF side.*
 
-1. Log in to the ptf-sai docker, you can find the IP address of docker which is connected to the DUT in [testbed.yaml](https://github.com/Azure/sonic-mgmt/blob/master/ansible/testbed.yaml).  
+1. Log in to the ptf-sai docker, you can find the IP address of docker which is connected to the DUT in [testbed.yaml](https://github.com/Azure/sonic-mgmt/blob/master/ansible/testbed.yaml). 
+    ```
+    ssh root@<PTF_IP>
+    ```
 
 2. Make sure Github is accessible on ptf-sai docker and download the SAI repo which contains PTF-SAIv2 test cases 
     ```
-    rm -rf ./SAI
+    cd <PTF_Folder>
     git clone https://github.com/opencomputeproject/SAI.git
     cd SAI
-    git master v1.9
+    git checkout master
     ```
 
 3. Install the sai python header `python-saithriftv2_0.9.4_amd64.deb` into ptf-sai docker.
@@ -224,8 +303,9 @@ prepration:
     # install the deb package into ptf-sai docker
     dpkg -i python-saithriftv2_0.9.4_amd64.deb          
     ```
+## run test
 
-4. Start PTF-SAIv2 testing within ptf-sai docker
+Start PTF-SAIv2 testing within ptf-sai docker
     ```shell
     # set the platform name
     export PLATFORM=<vendor name>
@@ -234,8 +314,8 @@ prepration:
     ptf --test-dir ptf saisanity.L2SanityTest --interface '<Port_index@eth_name>' -t "thrift_server='<DUT ip address>'"
 
     # use a broadcom switch with 32-port as an example 
-   export PLATFORM=brcm
-   ptf --test-dir /tmp/SAI/ptf saisanity.L2SanityTest --interface '0@eth0' --interface '1@eth1' --interface '2@eth2' --interface '3@eth3' --interface '4@eth4' --interface '5@eth5' --interface '6@eth6' --interface '7@eth7' --interface '8@eth8' --interface '9@eth9' --interface '10@eth10' --interface '11@eth11' --interface '12@eth12' --interface '13@eth13' --interface '14@eth14' --interface '15@eth15' --interface '16@eth16' --interface '17@eth17' --interface '18@eth18' --interface '19@eth19' --interface '20@eth20' --interface '21@eth21' --interface '22@eth22' --interface '23@eth23' --interface '24@eth24' --interface '25@eth25' --interface '26@eth26' --interface '27@eth27' --interface '28@eth28' --interface '29@eth29' --interface '30@eth30' --interface '31@eth31' "--test-params=thrift_server='<DUT ip address>'"
+    export PLATFORM=brcm
+    ptf --test-dir /tmp/SAI/ptf saisanity.L2SanityTest --interface '0@eth0' --interface '1@eth1' --interface '2@eth2' --interface '3@eth3' --interface '4@eth4' --interface '5@eth5' --interface '6@eth6' --interface '7@eth7' --interface '8@eth8' --interface '9@eth9' --interface '10@eth10' --interface '11@eth11' --interface '12@eth12' --interface '13@eth13' --interface '14@eth14' --interface '15@eth15' --interface '16@eth16' --interface '17@eth17' --interface '18@eth18' --interface '19@eth19' --interface '20@eth20' --interface '21@eth21' --interface '22@eth22' --interface '23@eth23' --interface '24@eth24' --interface '25@eth25' --interface '26@eth26' --interface '27@eth27' --interface '28@eth28' --interface '29@eth29' --interface '30@eth30' --interface '31@eth31' "--test-params=thrift_server='<DUT ip address>'"
     ```
 
 Specification for parameter ``--interface '<Port_index@eth_name>'``
