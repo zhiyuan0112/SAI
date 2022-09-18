@@ -4,51 +4,58 @@
 - [Deploy SAI PTF Test Topology With SONiC-MGMT](#deploy-sai-ptf-test-topology-with-sonic-mgmt)
 - [reference](#reference)
 
-> **Those commands need to be run within a sonic-mgmt docker, or you need to run them within a similar environment.** For how to setup the sonic-mgmt docker please refer to https://github.com/Azure/sonic-mgmt/blob/master/docs/testbed/README.testbed.VsSetup.md#setup-sonic-mgmt-docker
+> **Those commands need to be run within a sonic-mgmt docker, or you need to run them within a similar environment.** 
+
+For how to setup the sonic-mgmt docker please refer to [setup-sonic-mgmt-docker](https://github.com/Azure/sonic-mgmt/blob/master/docs/testbed/README.testbed.VsSetup.md#setup-sonic-mgmt-docker)
 
 
 1. install the sonic image in the DUT(device under test)
-for example
-```
-SONiC Software Version: SONiC.20220701.01
-```
+
+   for example
+   ```
+   SONiC Software Version: SONiC.20220701.01
+   ```
 2. remove the topology for the current testbed (Optional)
-For SAI-PTF testing, cause it use PTF32 topology, which is different other [SONiC Logical topologies](https://github.com/sonic-net/sonic-mgmt/blob/master/docs/testbed/README.testbed.Overview.md#logical-topologies), if you already deployed some T0, T1 topology, you need to remove them at first.
    
-```
-./testbed-cli.sh remove-topo vms12-t0-s6000-1 password.txt
-```
+   For SAI-PTF testing, cause it use PTF32 topology, which is different other [SONiC Logical topologies](https://github.com/sonic-net/sonic-mgmt/blob/master/docs/testbed/README.testbed.Overview.md#logical-topologies), if you already deployed some T0, T1 topology, you need to remove them at first.
+      
+   ```
+   ./testbed-cli.sh remove-topo vms12-t0-s6000-1 password.txt
+   ```
 
 3. Config PTF 32 topology deployment
-In order to deplpy the PTF 32 environment, we need to change the topology to 'ptf32' by modifying the testbed.yml
 
-For example, we want to use the config `vms-sn2700-t1-lag`, then we need to change it
-> Note: Below environment is just for example, please use your local physcial environment for actual testing.  
-```git
- - conf-name: vms-sn2700-t1
-   group-name: vms1-1
--  topo: t1
-+  topo: ptf32
-   ptf_image_name: docker-ptf-saiv2 < 
--  ptf: ptf-unknown
-+  ptf: ptf-docker-name
-   ptf_ip: 10.255.0.178/24
-   ptf_ipv6:
-   server: server_1
-```
+   In order to deplpy the PTF 32 environment, we need to change the topology to 'ptf32' by modifying the testbed.yml
+
+   For example, we want to use the config `vms-sn2700-t1-lag`, then we need to change it
+   > Note: Below environment is just for example, please use your local physcial environment for actual testing.  
+   ```git
+   - conf-name: vms-sn2700-t1
+      group-name: vms1-1
+   -  topo: t1
+   +  topo: ptf32
+      ptf_image_name: docker-ptf-saiv2 < 
+   -  ptf: ptf-unknown
+   +  ptf: ptf-docker-name
+      ptf_ip: 10.255.0.178/24
+      ptf_ipv6:
+      server: server_1
+   ```
 > **for the topo, if it ends with 64, then the topo should be ptf64, please change it according to the actual device port.**
 
- > For more detail about the SONiC testbed topology please refer to [sonic testbed overriew](https://github.com/sonic-net/sonic-mgmt/blob/master/docs/testbed/README.testbed.Overview.md)
+> Make sure you push docker docker-ptf-saiv2 correctly [Setup the testbed by sonic-mgmt](PTF-SAIv2Overview.md#setup-the-testbed-by-sonic-mgmt)
+
+> For more detail about the SONiC testbed topology please refer to [sonic testbed overriew](https://github.com/sonic-net/sonic-mgmt/blob/master/docs/testbed/README.testbed.Overview.md)
 
 4. deploy the new topology
-```
-/data/<repo_sonic-mgmt>/testbed-cli.sh -t testbed.yaml add-topo <conf-name> password.txt
-# password can be a empty file.
-```
-For example, for the test bed config `vms-sn2700-t1-lag`, it should be
-```
-/data/<repo_sonic-mgmt>/testbed-cli.sh -t testbed.yaml add-topo vms-sn2700-t1 password.txt
-```
+   ```
+   /data/<repo_sonic-mgmt>/testbed-cli.sh -t testbed.yaml add-topo <conf-name> password.txt
+   # password can be a empty file.
+   ```
+   For example, for the test bed config `vms-sn2700-t1-lag`, it should be
+   ```
+   /data/<repo_sonic-mgmt>/testbed-cli.sh -t testbed.yaml add-topo vms-sn2700-t1 password.txt
+   ```
 
 > **Note: vms-sn2700-t1 is a sample testbed name for example, please use actual name as needed.**
 

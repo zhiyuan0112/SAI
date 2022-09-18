@@ -7,6 +7,7 @@
   - [Get the commit id from sonic-buildimage.](#get-the-commit-id-from-sonic-buildimage)
 
 ## Check SAI Header Version
+
 For sai, it has many versions and spread with those versions, different SAI header(SPI) defined across them, for testing different SAI headers, we need different SAI binary and SAI Server
 	
 1. For understanding the testbed topology, make sure you go through the doc at 
@@ -45,24 +46,21 @@ $(BRCM_SAI_DEV)_URL = "https://sonicstorage.blob.core.windows.net/packages/bcmsa
 Check SONiC version in a DUT
 
    **Old version might hit some issue caused by a related package upgrade, you can always use the latest tag of a major version(i.e major is 20201231) but notice the matching image version.**
-      ```
-      # Image build with tag
-      show version
-      SONiC Software Version: SONiC.20201231.39
-      ```
-      ```
-      # Image build without tag
-      SONiC Software Version: SONiC.master.39085-dirty-20210923.145659
-      ```
+
+   ```
+   # Image build with tag
+   show version
+   SONiC Software Version: SONiC.20201231.39
+   ```
+   ```
+   # Image build without tag
+   SONiC Software Version: SONiC.master.39085-dirty-20210923.145659
+   ```
 
 
 ##  Get the commit id from sonic-buildimage.
 
-      *ps. sonic-buildimage is a repository used to build sonic images and docker images. SAI is a submodule in sonic-buildimage(/sonic-buildimage/tree/master/src/sonic-sairedis). The commit id in sonic-buildimage can be used to get all the submodules for its submodule, like sai.*
-
-      In your dev environment, install pre-requirement lib, e.g. pip and jinja, re-located code to that tag and resident on a new branch, 
-      here we use repository [sonic-buildimage](https://github.com/Azure/sonic-buildimage)
-      Follow the doc at [Check SAI Header Version And SONiC Branch](CheckVersion.md)
+   > *ps. sonic-buildimage is a repository used to build sonic images and docker images. SAI is a submodule in sonic-buildimage(/sonic-buildimage/tree/master/src/sonic-sairedis). The commit id in sonic-buildimage can be used to get all the submodules for its submodules, like sai.*
 
    - Get commit id from tag.
 

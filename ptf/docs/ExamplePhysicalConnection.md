@@ -2,6 +2,11 @@
 
 *In this article, you will get to know the physical connection of testbed by an example.*
 
+- [Example: Physical Connection](#example-physical-connection)
+  - [Key Components](#key-components)
+  - [Physical Connection](#physical-connection)
+  - [Vlan definitation](#vlan-definitation)
+
 This example follows the [Testbed Setting (the third config)](https://github.com/sonic-net/sonic-mgmt/blob/master/ansible/testbed.csv#L4) and [Connection Graph](https://github.com/sonic-net/sonic-mgmt/commit/005d792675bbd21184534089d41e2be7e60c2735).
 
 ## Key Components
@@ -42,7 +47,7 @@ Datastream from SONiC DUT to Test Server:
     <DeviceInterfaceLink BandWidth="40000" EndDevice="dev-acs-serv-01" EndPort="p4p1" StartDevice="dev-7260-11" StartPort="Ethernet19"/>
     ```
 
-## Vlan id
+## Vlan definitation
 There is an unique vlan for each interface in the leaf fanout switch. By setting `InterfaceVlan.vlanids` correctly, the datastream is established between two specific devices: SONiC DUT (`dev-msn2700-01`) and Test Servers (`dev-acs-serv-01`). 
 
 ```xml
