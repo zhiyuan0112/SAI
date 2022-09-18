@@ -55,7 +55,7 @@ Key aspects of the physical connection:
 ## Setup Testbed
 *In this part, we will build PTF-SAIv2 infras using sonic-buildimage.*
 
- > Note: If you want to setup the test enviroment, please refer to [SAI PTF introduction and manually setup Testbed](ManuallySetupTestbedGuide.md).
+ > Note: If you want to setup the test enviroment manually, please refer to [SAI PTF introduction and manually setup Testbed](ManuallySetupTestbedGuide.md).
 
 In the following, we use other SONiC scripts to help setup the [SAI PTF topology](https://github.com/sonic-net/sonic-mgmt/blob/master/docs/testbed/README.testbed.Overview.md#ptf-type-topology) environment with all the testing components mentioned in [SAI PTF introduction and manually setup Testbed](ManuallySetupTestbedGuide.md).
 
@@ -64,7 +64,7 @@ In the following, we use other SONiC scripts to help setup the [SAI PTF topology
 
 For SAI-PTFv2 test, we need to build components:
 1. Docker PTF, which contains all the runtime dependences
-2. Docker SAIServerv2, which contains the RPC Server (as described in ##Instructuon section), SAI SDK and all the running dependences
+2. Docker SAIServerv2, which contains the RPC Server, SAI SDK and all the running dependences
 3. python-saithrift, the RPC client, this binary will be generated when build the docker saiserverv2
 
 > Note: SAIServer (RPC Server) and python-saithrift (RPC client) must be built from a same SAI version, when deploying you environment, please make sure they are from same version.
@@ -106,7 +106,7 @@ For how to check the sai header version and sonic branch from a certain sonic im
 
         # SAITHRIFT_V2=y: build the saiserver version 2nd
         # build brcm saiserverv2 docker 
-        make BLDENV=buster SAITHRIFT_V2=y -f Makefile.work target/docker-saiserverv2-brcm.gz
+        make SAITHRIFT_V2=y -f Makefile.work target/docker-saiserverv2-brcm.gz
         ```
 
     - build docker ptf-sai
@@ -118,7 +118,7 @@ For how to check the sai header version and sonic branch from a certain sonic im
         # Setup platform environment e.g. virtual switch
         make BLDENV=buster configure PLATFORM=vs
 
-        make BLDENV=buster SAITHRIFT_V2=y target/docker-ptf-sai.gz
+        make SAITHRIFT_V2=y target/docker-ptf-sai.gz
         ```
 
 3. Locate the generated binary and dockers
