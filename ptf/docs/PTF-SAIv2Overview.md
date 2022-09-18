@@ -157,7 +157,7 @@ You have a local docker rigistry which can be used to push and pull dockers
     acs-repo.corp.microsoft.com:5001/docker-syncd-brcm-rpc     20201231.76         fc97962d4b2a        983MB
     ```
     **Here, the 20201231.76 is the OS_VERSION**
-2. upload the build out dockers 
+2. Upload the build out dockers 
 
     We need to upload those docker to your local available docker registery:
     - docker saiserverv2 at <local_folder>/sonic-buildimage/target/docker-saiserverv2-brcm.gz
@@ -214,17 +214,17 @@ You have a local docker rigistry which can be used to push and pull dockers
     scp -r ./DUTScript admin@<DUT_IP>:~/
     ```
 > below steps are under DUT
-2. go into folder DUTScript
+2. Go into folder DUTScript
    ```
    cd DUTScript
    ```
 
-3. login to the docker your local repo and make sure it is accessable
+3. Login to the docker your local repo and make sure it is accessable
     ```
     docker login <local_docker_reg>
     ```
 
-4. pull saiserverv docker 
+4. Pull saiserverv docker 
 
     Change the docker registry in <sonic-misc>/DUTScript/pull_saiserver_syncd_rpc_dockers.sh
     ```
@@ -241,7 +241,7 @@ You have a local docker rigistry which can be used to push and pull dockers
     ./pull_saiserver_syncd_rpc_dockers.sh -v v2  
     ```
     > Make sure you pushed docker correctly.
-5. prepare saiserver 
+5. Prepare saiserver 
     ```
     sudo ./prepare_saiserver_service.sh -v v2 
     ```
@@ -258,15 +258,15 @@ You have a local docker rigistry which can be used to push and pull dockers
             /usr/bin/start.sh
             /usr/sbin/saiserver -p /etc/sai.d/sai.profile -f /usr/share/sonic/hwsku/port_config.ini
     ```
-6. stop all listeners which are used to docker recovery
+6. Stop all listeners which are used to docker recovery
     ```
     sudo ./all_listener.sh -o stop
     ```
-7. stop all the other docker services
+7. Stop all the other docker services
     ```
     sudo ./all_service.sh -o stop
     ```
-8. start saiserver
+8. Start saiserver
     ```
     sudo systemctl start saiserver
     ```
@@ -306,17 +306,17 @@ PID TTY          TIME CMD
 ## run test
 
 Start PTF-SAIv2 testing within ptf-sai docker
-    ```shell
-    # set the platform name
-    export PLATFORM=<vendor name>
+```shell
+# set the platform name
+export PLATFORM=<vendor name>
 
-    # run a sanitytest
-    ptf --test-dir ptf saisanity.L2SanityTest --interface '<Port_index@eth_name>' -t "thrift_server='<DUT ip address>'"
+# run a sanitytest
+ptf --test-dir ptf saisanity.L2SanityTest --interface '<Port_index@eth_name>' -t "thrift_server='<DUT ip address>'"
 
-    # use a broadcom switch with 32-port as an example 
-    export PLATFORM=brcm
-    ptf --test-dir /tmp/SAI/ptf saisanity.L2SanityTest --interface '0@eth0' --interface '1@eth1' --interface '2@eth2' --interface '3@eth3' --interface '4@eth4' --interface '5@eth5' --interface '6@eth6' --interface '7@eth7' --interface '8@eth8' --interface '9@eth9' --interface '10@eth10' --interface '11@eth11' --interface '12@eth12' --interface '13@eth13' --interface '14@eth14' --interface '15@eth15' --interface '16@eth16' --interface '17@eth17' --interface '18@eth18' --interface '19@eth19' --interface '20@eth20' --interface '21@eth21' --interface '22@eth22' --interface '23@eth23' --interface '24@eth24' --interface '25@eth25' --interface '26@eth26' --interface '27@eth27' --interface '28@eth28' --interface '29@eth29' --interface '30@eth30' --interface '31@eth31' "--test-params=thrift_server='<DUT ip address>'"
-    ```
+# use a broadcom switch with 32-port as an example 
+export PLATFORM=brcm
+ptf --test-dir /tmp/SAI/ptf saisanity.L2SanityTest --interface '0@eth0' --interface '1@eth1' --interface '2@eth2' --interface '3@eth3' --interface '4@eth4' --interface '5@eth5' --interface '6@eth6' --interface '7@eth7' --interface '8@eth8' --interface '9@eth9' --interface '10@eth10' --interface '11@eth11' --interface '12@eth12' --interface '13@eth13' --interface '14@eth14' --interface '15@eth15' --interface '16@eth16' --interface '17@eth17' --interface '18@eth18' --interface '19@eth19' --interface '20@eth20' --interface '21@eth21' --interface '22@eth22' --interface '23@eth23' --interface '24@eth24' --interface '25@eth25' --interface '26@eth26' --interface '27@eth27' --interface '28@eth28' --interface '29@eth29' --interface '30@eth30' --interface '31@eth31' "--test-params=thrift_server='<DUT ip address>'"
+```
 
 Specification for parameter ``--interface '<Port_index@eth_name>'``
 - Port_index
